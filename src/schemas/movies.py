@@ -8,34 +8,35 @@ from datetime import date as date_type, timedelta
 class CountrySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int  # noqa: VNE003
     code: str
-    name: str
+    name: str | None
 
 
 class GenreSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int  # noqa: VNE003
     name: str
 
 
 class ActorSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int  # noqa: VNE003
     name: str
 
 
 class LanguageSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int  # noqa: VNE003
     name: str
+
 
 class MovieDetailShema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: int
+    id: int  # noqa: VNE003
     name: str = Field(..., max_length=255)
     date: date_type
     score: float = Field(..., ge=0, le=100)
@@ -47,7 +48,6 @@ class MovieDetailShema(BaseModel):
     genres: list[GenreSchema]
     actors: list[ActorSchema]
     languages: list[LanguageSchema]
-
 
     @field_validator("date")
     @classmethod
@@ -62,7 +62,7 @@ class MovieDetailShema(BaseModel):
 class MovieListItemSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: int  # noqa: VNE003
     name: str
     date: date_type
     score: float
@@ -85,7 +85,7 @@ class MoviesCreateShema(BaseModel):
     status: str
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country: str
+    country: str = Field(pattern=r"^[A-Z]{3}$")
     genres: list[str] = Field(default_factory=list)
     actors: list[str] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)

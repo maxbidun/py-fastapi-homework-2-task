@@ -52,7 +52,7 @@ MoviesLanguagesModel = Table(
 class GenreModel(Base):
     __tablename__ = "genres"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # noqa: VNE003
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     movies: Mapped[list["MovieModel"]] = relationship(
@@ -68,7 +68,7 @@ class GenreModel(Base):
 class ActorModel(Base):
     __tablename__ = "actors"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # noqa: VNE003
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     movies: Mapped[list["MovieModel"]] = relationship(
@@ -84,7 +84,7 @@ class ActorModel(Base):
 class CountryModel(Base):
     __tablename__ = "countries"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # noqa: VNE003
     code: Mapped[str] = mapped_column(String(3), unique=True, nullable=False)
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
@@ -97,7 +97,7 @@ class CountryModel(Base):
 class LanguageModel(Base):
     __tablename__ = "languages"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # noqa: VNE003
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     movies: Mapped[list["MovieModel"]] = relationship(
@@ -113,7 +113,7 @@ class LanguageModel(Base):
 class MovieModel(Base):
     __tablename__ = "movies"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # noqa: VNE003
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     score: Mapped[float] = mapped_column(Float, nullable=False)
