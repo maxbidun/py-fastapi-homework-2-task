@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.util import await_
 
 from database import get_db, MovieModel
@@ -12,9 +12,9 @@ from schemas.movies import MoviesListShema, MoviesCreateShema, MovieDetailShema,
 router = APIRouter()
 
 # Write your code here
-@router.get("/movies/", response_model=list[MovieDetailShema])
+@router.get("/movies/", response_model=MoviesListShema)
 async def get_movies(db: AsyncSession = Depends(get_db), page: int = Query(1, ge=1), per_page: int = Query(10, ge=1, le=20)):
-    movies = list(await db.scalars(select(MovieModel).limit(per_page).offset((page-1) * per_page)).order_by(MovieModel.id.desc())).all()
+    movies = list(await db.scalars(select(MovieModel).order_by(MovieModel.id.desc()).limit(per_page).offset((page-1) * per_page))).all()
     total_items = await db.scalar(select(func.count()).select_from(MovieModel))
 
     if total_items % per_page != 0:
@@ -50,7 +50,7 @@ async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_
     )
 
     if movie_test:
-        raise HTTPException(status_code=400, detail=f"A movie with the name '{movie.name}' and release date '{movie.date}' already exists.")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"A movie with the name '{movie.name}' and release date '{movie.date}' already exists.")
 
     country = await db.scalar(
         select(CountryModel).where(CountryModel.code == movie.country)
@@ -91,7 +91,12 @@ async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_
 
 @router.get("/movies/{movie_id}/", response_model=MovieDetailShema)
 async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
-    movie = await db.scalar(select(MovieModel).where(MovieModel.id == movie_id))
+    movie = await db.scalar(select(MovieModel) .options(
+        joinedload(MovieModel.country),
+        selectinload(MovieModel.genres),
+        selectinload(MovieModel.actors),
+        selectinload(MovieModel.languages),
+    ).where(MovieModel.id == movie_id))
 
     if movie is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie with the given ID was not found.")
@@ -100,7 +105,12 @@ async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
 
 @router.delete("/movies/{movie_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db), status_code=status.HTTP_204_NO_CONTENT):
-    movie = await db.scalar(select(MovieModel).where(MovieModel.id == movie_id))
+    movie = await db.scalar(select(MovieModel) .options(
+        joinedload(MovieModel.country),
+        selectinload(MovieModel.genres),
+        selectinload(MovieModel.actors),
+        selectinload(MovieModel.languages),
+    ).where(MovieModel.id == movie_id))
     if movie is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie with the given ID was not found.")
     await db.delete(movie)
@@ -109,7 +119,12 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db), status
 
 @router.patch("/movies/{movie_id}/", response_model=MoviesUpdateShema, status_code=status.HTTP_200_OK,)
 async def update_movie(movie_id: int, movie_update: MoviesUpdateShema, db:  AsyncSession = Depends(get_db)):
-    movie = await db.scalar(select(MovieModel).where(MovieModel.id == movie_id))
+    movie = await db.scalar(select(MovieModel).options(
+        joinedload(MovieModel.country),
+        selectinload(MovieModel.genres),
+        selectinload(MovieModel.actors),
+        selectinload(MovieModel.languages),
+    ).where(MovieModel.id == movie_id))
     if movie is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie with the given ID was not found.")
     update_data = movie_update.model_dump(exclude_unset=True)
