@@ -5,6 +5,34 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import date as date_type, timedelta
 
 
+class CountrySchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    code: str
+    name: str
+
+
+class GenreSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+
+
+class ActorSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+
+
+class LanguageSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+
 class MovieDetailShema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -15,11 +43,11 @@ class MovieDetailShema(BaseModel):
     status: str
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country_id: int
-    country_name: str
-    genre: str
-    actors: list
-    languages: list
+    country: CountrySchema
+    genres: list[GenreSchema]
+    actors: list[ActorSchema]
+    languages: list[LanguageSchema]
+
 
     @field_validator("date")
     @classmethod
@@ -46,7 +74,10 @@ class MoviesCreateShema(BaseModel):
     status: str
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country_id: int
+    country: str
+    genres: list[str] = Field(default_factory=list)
+    actors: list[str] = Field(default_factory=list)
+    languages: list[str] = Field(default_factory=list)
 
 
 class MoviesUpdateShema(BaseModel):
