@@ -58,8 +58,19 @@ class MovieDetailShema(BaseModel):
             raise ValueError("Date must be in the future")
         return value
 
+
+class MovieListItemSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    date: date_type
+    score: float
+    overview: str
+
+
 class MoviesListShema(BaseModel):
-    movies: List[MovieDetailShema]
+    movies: List[MovieListItemSchema]
     prev_page: str | None
     next_page: str | None
     total_pages: int
@@ -88,3 +99,7 @@ class MoviesUpdateShema(BaseModel):
     status: str | None = None
     budget: float | None = Field(default=None, ge=0)
     revenue: float | None = Field(default=None, ge=0)
+
+
+class MovieUpdateResponseSchema(BaseModel):
+    detail: str

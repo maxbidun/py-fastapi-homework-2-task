@@ -3,11 +3,11 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy.util import await_
 
 from database import get_db, MovieModel
 from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
-from schemas.movies import MoviesListShema, MoviesCreateShema, MovieDetailShema, MoviesUpdateShema
+from schemas.movies import MoviesListShema, MoviesCreateShema, MovieDetailShema, MoviesUpdateShema, \
+    MovieUpdateResponseSchema
 
 router = APIRouter()
 
@@ -40,7 +40,7 @@ async def get_movies(db: AsyncSession = Depends(get_db), page: int = Query(1, ge
         total_items=total_items
     )
 
-@router.post("/movies/", response_model=MoviesListShema, status_code=status.HTTP_201_CREATED)
+@router.post("/movies/", response_model=MovieDetailShema, status_code=status.HTTP_201_CREATED)
 async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_db)):
     movie_test = await db.scalar(
         select(MovieModel).where(
@@ -117,7 +117,7 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db), status
     await db.commit()
 
 
-@router.patch("/movies/{movie_id}/", response_model=MoviesUpdateShema, status_code=status.HTTP_200_OK,)
+@router.patch("/movies/{movie_id}/", response_model=MovieUpdateResponseSchema, status_code=status.HTTP_200_OK,)
 async def update_movie(movie_id: int, movie_update: MoviesUpdateShema, db:  AsyncSession = Depends(get_db)):
     movie = await db.scalar(select(MovieModel).options(
         joinedload(MovieModel.country),
