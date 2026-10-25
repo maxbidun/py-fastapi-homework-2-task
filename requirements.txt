@@ -1,0 +1,14 @@
+aiosqlite
+alembic
+fastapi
+sqlalchemy
+uvicorn
+pydantic-settings
+greenlet
+httpx
+pytest
+pytest-asyncio
+pandas
+tqdm
+asyncpg
+psycopg[binary]
