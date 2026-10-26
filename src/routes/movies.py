@@ -8,17 +8,17 @@ import pycountry
 from database import get_db, MovieModel
 from database.models import CountryModel, GenreModel, ActorModel, LanguageModel
 from schemas.movies import (
-    MoviesListShema,
-    MoviesCreateShema,
-    MovieDetailShema,
-    MoviesUpdateShema,
+    MoviesListSchema,
+    MoviesCreateSchema,
+    MovieDetailSchema,
+    MoviesUpdateSchema,
     MovieUpdateResponseSchema
 )
 
 router = APIRouter()
 
 
-@router.get("/movies/", response_model=MoviesListShema)
+@router.get("/movies/", response_model=MoviesListSchema)
 async def get_movies(
     db: AsyncSession = Depends(get_db),
     page: int = Query(1, ge=1),
@@ -49,7 +49,7 @@ async def get_movies(
 
     if not movies:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No movies found.")
-    return MoviesListShema(
+    return MoviesListSchema(
         movies=movies,
         prev_page=prev_page,
         next_page=next_page,
@@ -58,8 +58,8 @@ async def get_movies(
     )
 
 
-@router.post("/movies/", response_model=MovieDetailShema, status_code=status.HTTP_201_CREATED)
-async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_db)):
+@router.post("/movies/", response_model=MovieDetailSchema, status_code=status.HTTP_201_CREATED)
+async def create_movie(movie: MoviesCreateSchema, db: AsyncSession = Depends(get_db)):
     movie_test = await db.scalar(
         select(MovieModel).where(
             MovieModel.name == movie.name,
@@ -128,13 +128,10 @@ async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_
     except IntegrityError:
         await db.rollback()
         raise HTTPException(status_code=409, detail="A movie with this name and release date already exists.")
-    except Exception:
-        await db.rollback()
-        raise HTTPException(status_code=400, detail="An error occurred while saving the movie.")
     return new_movie
 
 
-@router.get("/movies/{movie_id}/", response_model=MovieDetailShema)
+@router.get("/movies/{movie_id}/", response_model=MovieDetailSchema)
 async def get_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
     movie = await db.scalar(select(MovieModel) .options(
         joinedload(MovieModel.country),
@@ -165,7 +162,7 @@ async def delete_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
 @router.patch("/movies/{movie_id}/", response_model=MovieUpdateResponseSchema, status_code=status.HTTP_200_OK,)
 async def update_movie(
     movie_id: int,
-    movie_update: MoviesUpdateShema,
+    movie_update: MoviesUpdateSchema,
     db: AsyncSession = Depends(get_db),
 ):
     movie = await db.scalar(select(MovieModel).options(
