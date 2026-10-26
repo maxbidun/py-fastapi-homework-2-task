@@ -80,7 +80,7 @@ async def create_movie(movie: MoviesCreateShema, db: AsyncSession = Depends(get_
         select(CountryModel).where(CountryModel.code == movie.country)
     )
     if country is None:
-        country_info = pycountry.countries.get(alpha_3=movie.country)
+        country_info = pycountry.countries.get(alpha_3=movie.country) or pycountry.countries.get(alpha_2=movie.country)
 
         if country_info is None:
             raise HTTPException(

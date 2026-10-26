@@ -85,7 +85,7 @@ class MoviesCreateShema(BaseModel):
     status: str
     budget: float = Field(..., ge=0)
     revenue: float = Field(..., ge=0)
-    country: str = Field(pattern=r"^[A-Z]{3}$")
+    country: str = Field(pattern=r"^[A-Z]{2,3}$")
     genres: list[str] = Field(default_factory=list)
     actors: list[str] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)
